@@ -22,7 +22,9 @@ class DictFilterValue:
     self.__l = dict()
     for i in info:
       if i in md.keys():
-        if len(md[i]) > 0:
+        if isinstance(md[i], float):
+          self.__l[i] = Value(md[i])
+        elif len(md[i]) > 0:
           self.__l[i] = Value(float(md[i]))
 
   def __str__(self):
