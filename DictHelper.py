@@ -70,6 +70,18 @@ def __filter(md, fd):
     if not __filter_tuple(md[k], fd[k]): return False
   return True
 
+def convert_filter_list_to_dic(filter_list):
+  dic = dict()
+  for value in filter_list:
+    split = value.split(':')
+    if len(split) == 2:
+      k = split[0]
+      if k in dic:
+        dic[k].update(set(split[1].split(',')))
+      else:
+        dic[k] = set(split[1].split(','))
+  return dic
+
 def read_json_file(filename, filter_dict, op_type, CASE_INFO, VALUE_INFO):
   input_res = dict()
   with open(filename) as fp:
