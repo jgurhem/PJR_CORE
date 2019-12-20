@@ -41,7 +41,6 @@ def extract_set(md, val_name):
     v = d.get(val_name, None)
     if v != None:
       s.add(v)
-  s = sorted(s)
 #  print(val_name + " : " + str(s))
   return s
 
