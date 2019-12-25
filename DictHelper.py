@@ -66,6 +66,7 @@ def __filter_tuple(v, tup):
 
 def __filter(md, fd):
   for k in fd.keys():
+    if k not in md.keys(): return False
     if not __filter_tuple(md[k], fd[k]): return False
   return True
 
