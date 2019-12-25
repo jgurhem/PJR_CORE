@@ -72,6 +72,8 @@ def __filter(md, fd):
 
 def convert_filter_list_to_dic(filter_list):
   dic = dict()
+  if filter_list == None:
+    return dic
   for value in filter_list:
     split = value.split(':')
     if len(split) == 2:
