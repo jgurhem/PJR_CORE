@@ -28,6 +28,29 @@ def convert_filter_list_to_dic(filter_list):
         dic[k] = set(split[1].split(','))
   return dic
 
+def create_filter(con, relname, filter_dict):
+  cur = con.cursor()
+  filter_query = f'CREATE TABLE {relname}_filter AS SELECT id FROM auto_all_values'
+  if filter_dict:
+    filter_query += ' WHERE'
+    keys = list(filter_dict.keys())
+    if len(keys) > 0:
+      filter_query += ' ('
+      l = list(filter_dict[keys[0]])
+      filter_query += keys[0] + "='" + l.pop() + "'"
+      while(len(l) > 0):
+        filter_query += ' OR ' + keys[0] + "='" + l.pop() + "'"
+      filter_query += ')'
+    for ki in range(1, len(keys)):
+      filter_query += ' AND ('
+      l = list(filter_dict[keys[ki]])
+      filter_query += keys[ki] + "='" + l.pop() + "'"
+      while(len(l) > 0):
+        filter_query += ' OR ' + keys[ki] + "='" + l.pop() + "'"
+      filter_query += ')'
+  cur.execute(filter_query)
+  con.commit()
+
 def read_json_file_raw(filename, filter_dict):
   dbpath = "test.db"
   if os.path.isfile(dbpath):
@@ -63,28 +86,8 @@ def read_json_file_raw(filename, filter_dict):
       placeholders = ':' + ', :'.join(mydict.keys())
       query = 'INSERT INTO auto_all_values (%s) VALUES (%s)' % (columns, placeholders)
       cur.execute(query, mydict)
-
-  filter_query = 'CREATE TABLE auto_filter AS SELECT id FROM auto_all_values'
-  if filter_dict:
-    filter_query += ' WHERE'
-    keys = list(filter_dict.keys())
-    if len(keys) > 0:
-      filter_query += ' ('
-      l = list(filter_dict[keys[0]])
-      filter_query += keys[0] + "='" + l.pop() + "'"
-      while(len(l) > 0):
-        filter_query += ' OR ' + keys[0] + "='" + l.pop() + "'"
-      filter_query += ')'
-    for ki in range(1, len(keys)):
-      filter_query += ' AND ('
-      l = list(filter_dict[keys[ki]])
-      filter_query += keys[ki] + "='" + l.pop() + "'"
-      while(len(l) > 0):
-        filter_query += ' OR ' + keys[ki] + "='" + l.pop() + "'"
-      filter_query += ')'
-  cur.execute(filter_query)
-
   con.commit()
+  create_filter(con, 'auto', filter_dict)
   return con
 
 def create_case_table(con, relname, case_components):
