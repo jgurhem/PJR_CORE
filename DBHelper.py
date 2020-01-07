@@ -121,7 +121,7 @@ def create_case_table(con, relname, case_components):
 
 def compute_stats(con, relname, column):
   cur = con.cursor()
-  query = f'CREATE TABLE {relname}_stats (id_cases INTEGER, n INTEGER, min FLAOT, max FLOAT, mean FLOAT, median FLOAT, sum FLOAT, std FLOAT, var FLOAT)'
+  query = f'CREATE TABLE {relname}_{column}_stats (id_cases INTEGER, n INTEGER, min FLAOT, max FLOAT, mean FLOAT, median FLOAT, sum FLOAT, std FLOAT, var FLOAT)'
   cur.execute(query)
 
   query = f'SELECT rowid FROM {relname}_cases'
@@ -132,12 +132,13 @@ def compute_stats(con, relname, column):
     cur.execute(query)
     res2 = cur.fetchall()
     res2 = [float(x[0]) for x in res2]
-    query = f"INSERT INTO {relname}_stats VALUES({i[0]}, {len(res2)}, {np.min(res2)}, {np.max(res2)}, {np.mean(res2)}, {np.median(res2)}, {np.sum(res2)}, {np.std(res2)}, {np.var(res2)})"
+    query = f"INSERT INTO {relname}_{column}_stats VALUES({i[0]}, {len(res2)}, {np.min(res2)}, {np.max(res2)}, {np.mean(res2)}, {np.median(res2)}, {np.sum(res2)}, {np.std(res2)}, {np.var(res2)})"
     cur.execute(query)
   con.commit()
 
-def read_json_file(filename, filter_dict, CASE_INFO, column):
+def read_json_file(filename, filter_dict, CASE_INFO, column_list):
   con = read_json_file_raw(filename, filter_dict)
   create_case_table(con, 'auto', CASE_INFO)
-  compute_stats(con, 'auto', column)
+  for column in column_list:
+    compute_stats(con, 'auto', column)
   return con

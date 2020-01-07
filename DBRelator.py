@@ -1,4 +1,4 @@
-def matrix_relation(con, list_cases, case_of_interest, relname, op):
+def matrix_relation(con, list_cases, case_of_interest, value_of_interest, relname, op):
   cur = con.cursor()
 
   query = f'SELECT DISTINCT {case_of_interest} FROM {relname}_cases'
@@ -18,7 +18,7 @@ def matrix_relation(con, list_cases, case_of_interest, relname, op):
   for r in rows:
     m[r] = dict()
     for c in columns:
-      query = f'SELECT {op} FROM {relname}_stats INNER JOIN {relname}_cases ON {relname}_stats.rowid={relname}_cases.rowid WHERE '
+      query = f'SELECT {op} FROM {relname}_{value_of_interest}_stats INNER JOIN {relname}_cases ON {relname}_{value_of_interest}_stats.rowid={relname}_cases.rowid WHERE '
       query += f'{case_of_interest}={c}'
       for i in range(len(list_cases)):
         query += f' AND {relname}_cases.' + list_cases[i] + "='" + str(r[i]) + "'"
