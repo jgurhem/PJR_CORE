@@ -47,12 +47,15 @@ def matrix_relation(con, list_cases, list_sub_cases, case_of_interest, value_of_
         query += f' AND {relname}_cases.' + list_cases[i] + "='" + str(r[i]) + "'"
       cur.execute(query)
       res = cur.fetchall()
-      min_pos = np.argmin([float(x[0]) for x in res])
-      if res != None:
+      if res != None and len(res) > 0:
+        min_pos = np.argmin([float(x[0]) for x in res])
         for i in range(len(stats)):
           m[r][str(c) + '_' + stats[i]] = res[min_pos][i]
         for i in range(len(list_sub_cases)):
           m[r][str(c) + '_' + list_sub_cases[i]] = res[min_pos][len(stats) + i]
       else:
-        m[r][c] = None
+        for i in range(len(stats)):
+          m[r][str(c) + '_' + stats[i]] = None
+        for i in range(len(list_sub_cases)):
+          m[r][str(c) + '_' + list_sub_cases[i]] = None
   return m, columns
