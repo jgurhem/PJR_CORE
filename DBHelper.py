@@ -51,7 +51,7 @@ def create_filter(con, relname, filter_dict):
   cur.execute(filter_query)
   con.commit()
 
-def read_json_file_raw(filename, filter_dict):
+def read_json_file_raw(filename):
   dbpath = "test.db"
   if os.path.isfile(dbpath):
     os.remove(dbpath)
@@ -87,7 +87,6 @@ def read_json_file_raw(filename, filter_dict):
       query = 'INSERT INTO auto_all_values (%s) VALUES (%s)' % (columns, placeholders)
       cur.execute(query, mydict)
   con.commit()
-  create_filter(con, 'auto', filter_dict)
   return con
 
 def create_case_table(con, relname, case_components):
@@ -137,7 +136,8 @@ def compute_stats(con, relname, column):
   con.commit()
 
 def read_json_file(filename, filter_dict, CASE_INFO, column_list):
-  con = read_json_file_raw(filename, filter_dict)
+  con = read_json_file_raw(filename)
+  create_filter(con, 'auto', filter_dict)
   create_case_table(con, 'auto', CASE_INFO)
   for column in column_list:
     compute_stats(con, 'auto', column)
