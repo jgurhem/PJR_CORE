@@ -29,22 +29,18 @@ def convert_filter_list_to_dic(filter_list):
   return dic
 
 def generate_conditions_where(filter_dict):
-  keys = list(filter_dict.keys())
   filter_query = ''
-  if len(keys) > 0:
-    filter_query += ' ('
-    l = list(filter_dict[keys[0]])
-    filter_query += keys[0] + "='" + l.pop() + "'"
-    while(len(l) > 0):
-      filter_query += ' OR ' + keys[0] + "='" + l.pop() + "'"
-    filter_query += ')'
-  for ki in range(1, len(keys)):
-    filter_query += ' AND ('
-    l = list(filter_dict[keys[ki]])
-    filter_query += keys[ki] + "='" + l.pop() + "'"
-    while(len(l) > 0):
-      filter_query += ' OR ' + keys[ki] + "='" + l.pop() + "'"
-    filter_query += ')'
+  for k in filter_dict:
+    l = list(filter_dict[k])
+    if len(l) > 0:
+      filter_query += ' ('
+      while(len(l) > 0):
+        filter_query += k + "='" + l.pop() + "' OR "
+      if filter_query.endswith(' OR '):
+        filter_query = filter_query[:-4]
+      filter_query += ') AND'
+  if filter_query.endswith(' AND'):
+    filter_query = filter_query[:-4]
   return filter_query
 
 def create_filter(con, relname, filter_dict):
