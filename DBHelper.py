@@ -20,7 +20,11 @@ def convert_filter_list_to_dic(filter_list):
     return dic
   for value in filter_list:
     split = value.split(':')
-    if len(split) == 2:
+    if len(split) == 1:
+      k = split[0]
+      if k not in dic:
+        dic[k] = set()
+    elif len(split) == 2:
       k = split[0]
       if k in dic:
         dic[k].update(set(split[1].split(',')))

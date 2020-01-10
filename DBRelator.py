@@ -1,6 +1,7 @@
 import numpy as np
+from . import DBHelper as dh
 
-def matrix_relation(con, list_cases, list_sub_cases, case_of_interest, value_of_interest, relname, stats):
+def matrix_relation(con, dict_cases, list_sub_cases, case_of_interest, value_of_interest, relname, stats):
   """ Gather data from the database in order to use them in a plot.
   The list of sub cases (list_sub_cases) is used to select the best case formed with the main case and sub case parameters
   using the minimum value of the first statitic put in the stats variable.
@@ -8,7 +9,9 @@ def matrix_relation(con, list_cases, list_sub_cases, case_of_interest, value_of_
   Function parameters:
 
   con                --- connection to the sqlite3 database
-  list_cases         --- list of parameters to consider as main cases
+  dict_cases         --- dictionnary where the keys are the parameters to consider as main cases
+                                           the values are a list of conditions on the parameters
+                         ex : {param1:[value1,value2],param2:[value3,value4]}
   list_sub_cases     --- list of parameters to consider as sub cases, can be empty
   case_of_interest   --- parameter to compare to the main cases
   value_of_interest  --- parameter which values will be used as comparison
@@ -23,11 +26,15 @@ def matrix_relation(con, list_cases, list_sub_cases, case_of_interest, value_of_
   res = cur.fetchall()
   columns = [x[0] for x in res]
 
+  list_cases = list(dict_cases.keys())
   query = 'SELECT DISTINCT '
   for i in list_cases:
     query += i + ','
   query = query.rstrip(',')
-  query += f' FROM {relname}_cases'
+  query += f' FROM {relname}_cases WHERE'
+  query += dh.generate_conditions_where(dict_cases)
+  if query.endswith(' WHERE'):
+    query = query[:-6]
   cur.execute(query)
   rows = cur.fetchall()
 
