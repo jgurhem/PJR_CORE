@@ -51,8 +51,7 @@ def create_filter(con, relname, filter_dict):
   cur.execute(filter_query)
   con.commit()
 
-def read_json_file_raw(filename):
-  dbpath = "test.db"
+def read_json_file_raw(dbpath, filename):
   if os.path.isfile(dbpath):
     os.remove(dbpath)
   con = sqlite3.connect(dbpath)
@@ -135,8 +134,8 @@ def compute_stats(con, relname, column):
     cur.execute(query)
   con.commit()
 
-def read_json_file(filename, filter_dict, CASE_INFO, column_list):
-  con = read_json_file_raw(filename)
+def read_json_file(dbpath, filename, filter_dict, CASE_INFO, column_list):
+  con = read_json_file_raw(dbpath, filename)
   create_filter(con, 'auto', filter_dict)
   create_case_table(con, 'auto', CASE_INFO)
   for column in column_list:
