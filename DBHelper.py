@@ -51,7 +51,7 @@ def create_filter(con, relname, filter_dict):
   cur.execute(filter_query)
   con.commit()
 
-def read_json_file_raw(dbpath, filename):
+def read_json_file_raw(dbpath, json_input_file):
   if os.path.isfile(dbpath):
     os.remove(dbpath)
   con = sqlite3.connect(dbpath)
@@ -59,7 +59,7 @@ def read_json_file_raw(dbpath, filename):
   create_table = 'CREATE TABLE auto_all_values(id INTEGER PRIMARY KEY'
 
   types = {}
-  with open(filename) as fp:
+  with open(json_input_file) as fp:
     for cnt, line in enumerate(fp):
       line = line.strip()
       if not line.startswith("{"): continue
@@ -76,7 +76,7 @@ def read_json_file_raw(dbpath, filename):
   create_table += ')'
   cur.execute(create_table)
 
-  with open(filename) as fp:
+  with open(json_input_file) as fp:
     for cnt, line in enumerate(fp):
       line = line.strip()
       if not line.startswith("{"): continue
@@ -134,8 +134,8 @@ def compute_stats(con, relname, column):
     cur.execute(query)
   con.commit()
 
-def read_json_file(dbpath, filename, filter_dict, CASE_INFO, column_list):
-  con = read_json_file_raw(dbpath, filename)
+def read_json_file(dbpath, json_input_file, filter_dict, CASE_INFO, column_list):
+  con = read_json_file_raw(dbpath, json_input_file)
   create_filter(con, 'auto', filter_dict)
   create_case_table(con, 'auto', CASE_INFO)
   for column in column_list:
