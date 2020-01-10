@@ -28,26 +28,31 @@ def convert_filter_list_to_dic(filter_list):
         dic[k] = set(split[1].split(','))
   return dic
 
+def generate_conditions_where(filter_dict):
+  keys = list(filter_dict.keys())
+  filter_query = ''
+  if len(keys) > 0:
+    filter_query += ' ('
+    l = list(filter_dict[keys[0]])
+    filter_query += keys[0] + "='" + l.pop() + "'"
+    while(len(l) > 0):
+      filter_query += ' OR ' + keys[0] + "='" + l.pop() + "'"
+    filter_query += ')'
+  for ki in range(1, len(keys)):
+    filter_query += ' AND ('
+    l = list(filter_dict[keys[ki]])
+    filter_query += keys[ki] + "='" + l.pop() + "'"
+    while(len(l) > 0):
+      filter_query += ' OR ' + keys[ki] + "='" + l.pop() + "'"
+    filter_query += ')'
+  return filter_query
+
 def create_filter(con, relname, filter_dict):
   cur = con.cursor()
   filter_query = f'CREATE TABLE {relname}_filter AS SELECT id FROM auto_all_values'
   if filter_dict:
     filter_query += ' WHERE'
-    keys = list(filter_dict.keys())
-    if len(keys) > 0:
-      filter_query += ' ('
-      l = list(filter_dict[keys[0]])
-      filter_query += keys[0] + "='" + l.pop() + "'"
-      while(len(l) > 0):
-        filter_query += ' OR ' + keys[0] + "='" + l.pop() + "'"
-      filter_query += ')'
-    for ki in range(1, len(keys)):
-      filter_query += ' AND ('
-      l = list(filter_dict[keys[ki]])
-      filter_query += keys[ki] + "='" + l.pop() + "'"
-      while(len(l) > 0):
-        filter_query += ' OR ' + keys[ki] + "='" + l.pop() + "'"
-      filter_query += ')'
+    filter_query += generate_conditions_where(filter_dict)
   cur.execute(filter_query)
   con.commit()
 
