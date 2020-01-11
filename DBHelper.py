@@ -99,7 +99,7 @@ def create_case_table(con, relname, case_components):
   for i in case_components:
     query += 'auto_all_values.' + i + ','
   query = query.rstrip(',')
-  query += ' FROM auto_filter INNER JOIN auto_all_values ON auto_all_values.id=auto_filter.id;'
+  query += f' FROM {relname}_filter INNER JOIN auto_all_values ON auto_all_values.id={relname}_filter.id;'
   cur.execute(query)
 
   query = f'CREATE TABLE {relname}_cases_values (id_cases INTEGER, id_values INTEGER)'
@@ -109,7 +109,7 @@ def create_case_table(con, relname, case_components):
   cur.execute(query)
   res = cur.fetchall()
   for i in res:
-    query = 'SELECT auto_filter.id FROM auto_filter INNER JOIN auto_all_values ON auto_all_values.id=auto_filter.id '
+    query = f'SELECT {relname}_filter.id FROM {relname}_filter INNER JOIN auto_all_values ON auto_all_values.id={relname}_filter.id '
     if(len(i) > 1):
       query += 'WHERE '
       for j in range(1, len(i) - 1):
