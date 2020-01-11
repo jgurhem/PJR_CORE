@@ -49,6 +49,7 @@ def generate_conditions_where(filter_dict):
 
 def create_filter(con, relname, filter_dict):
   cur = con.cursor()
+  cur.execute(f'DROP TABLE IF EXISTS {relname}_filter')
   filter_query = f'CREATE TABLE {relname}_filter AS SELECT id FROM auto_all_values'
   if filter_dict:
     filter_query += ' WHERE'
@@ -95,6 +96,7 @@ def read_json_file_raw(dbpath, json_input_file):
 
 def create_case_table(con, relname, case_components):
   cur = con.cursor()
+  cur.execute(f'DROP TABLE IF EXISTS {relname}_cases')
   query = f'CREATE TABLE {relname}_cases AS SELECT DISTINCT '
   for i in case_components:
     query += 'auto_all_values.' + i + ','
@@ -102,6 +104,7 @@ def create_case_table(con, relname, case_components):
   query += f' FROM {relname}_filter INNER JOIN auto_all_values ON auto_all_values.id={relname}_filter.id;'
   cur.execute(query)
 
+  cur.execute(f'DROP TABLE IF EXISTS {relname}_cases_values')
   query = f'CREATE TABLE {relname}_cases_values (id_cases INTEGER, id_values INTEGER)'
   cur.execute(query)
 
@@ -124,6 +127,7 @@ def create_case_table(con, relname, case_components):
 
 def compute_stats(con, relname, column):
   cur = con.cursor()
+  cur.execute(f'DROP TABLE IF EXISTS {relname}_{column}_stats')
   query = f'CREATE TABLE {relname}_{column}_stats (id_cases INTEGER, n INTEGER, min FLAOT, max FLOAT, mean FLOAT, median FLOAT, sum FLOAT, std FLOAT, var FLOAT)'
   cur.execute(query)
 
