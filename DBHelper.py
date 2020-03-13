@@ -14,6 +14,28 @@ def extract_set(db_con, val_name):
       s.add(i[0])
   return s
 
+def extract_set_filter(db_con, filter_prefix, val_name):
+  cur = db_con.cursor()
+  query = f'SELECT DISTINCT auto_all_values.{val_name} FROM {filter_prefix}_filter INNER JOIN auto_all_values ON auto_all_values.id={filter_prefix}_filter.id WHERE auto_all_values.{val_name} IS NOT NULL;'
+  cur.execute(query)
+  s = set()
+  f = cur.fetchall()
+  for i in f:
+    if len(i) > 0:
+      s.add(i[0])
+  return s
+
+def extract_set_all_values(db_con, val_name):
+  cur = db_con.cursor()
+  query = f'SELECT DISTINCT {val_name} FROM auto_all_values WHERE {val_name} IS NOT NULL;'
+  cur.execute(query)
+  s = set()
+  f = cur.fetchall()
+  for i in f:
+    if len(i) > 0:
+      s.add(i[0])
+  return s
+
 def convert_filter_list_to_dic(filter_list):
   dic = dict()
   if filter_list == None:
