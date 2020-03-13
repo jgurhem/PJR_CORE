@@ -39,7 +39,7 @@ def generate_conditions_where(filter_dict):
     if len(l) > 0:
       filter_query += ' ('
       while(len(l) > 0):
-        filter_query += k + "='" + l.pop() + "' OR "
+        filter_query += k + "='" + str(l.pop()) + "' OR "
       if filter_query.endswith(' OR '):
         filter_query = filter_query[:-4]
       filter_query += ') AND'
