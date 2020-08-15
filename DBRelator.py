@@ -1,7 +1,7 @@
 import numpy as np
 from . import DBHelper as dh
 
-def matrix_relation(con, dict_cases, list_sub_cases, case_of_interest, value_of_interest, relname, stats):
+def matrix_relation(con, dict_cases, list_sub_cases, case_of_interest, value_of_interest, relname, stats, ratios = list()):
   """ Gather data from the database in order to use them in a plot.
   The list of sub cases (list_sub_cases) is used to select the best case formed with the main case and sub case parameters
   using the minimum value of the first statitic put in the stats variable.
@@ -17,6 +17,9 @@ def matrix_relation(con, dict_cases, list_sub_cases, case_of_interest, value_of_
   value_of_interest  --- parameter which values will be used as comparison
   relname            --- prefix of the tables used to retrieve data
   stats              --- list of statistics to retrieve from the database
+  ratios             --- list of ratios the cases have to respect wheree param1*ratio=param2
+                         param1 and param2 have to be included in dict_cases or list_sub_cases
+                         ex : ['param1(str),param2(str),ratio(double)', '...', ..]
   """
 
   cur = con.cursor()
@@ -52,6 +55,10 @@ def matrix_relation(con, dict_cases, list_sub_cases, case_of_interest, value_of_
       query += f"{case_of_interest}='{c}'"
       for i in range(len(list_cases)):
         query += f' AND {relname}_cases.' + list_cases[i] + "='" + str(r[i]) + "'"
+      for i in ratios:
+        split = i.split(',')
+        if len(split) == 3:
+          query += f' AND {relname}_cases.{split[0]}*{split[2]}={relname}_cases.{split[1]}'
       cur.execute(query)
       res = cur.fetchall()
 
