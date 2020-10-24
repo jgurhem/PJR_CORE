@@ -136,10 +136,14 @@ def create_case_table(con, relname, case_components):
   for i in res:
     query = f'SELECT {relname}_filter.id FROM {relname}_filter INNER JOIN auto_all_values ON auto_all_values.id={relname}_filter.id '
     if(len(i) > 1):
-      query += 'WHERE '
-      for j in range(1, len(i) - 1):
-        query += 'auto_all_values.' + case_components[j - 1] + "='" + str(i[j]) + "' AND "
-      query += 'auto_all_values.' + case_components[len(i) - 2] + "='" + str(i[len(i) - 1]) + "'"
+      query += 'WHERE'
+      for j in range(1, len(i)):
+        if i[j] == None:
+          query += ' auto_all_values.' + case_components[j - 1] + " is null AND"
+        else:
+          query += ' auto_all_values.' + case_components[j - 1] + "='" + str(i[j]) + "' AND"
+      if query.endswith(' AND'):
+        query = query[:-4]
       cur.execute(query)
       res2 = cur.fetchall()
       for r in res2:
