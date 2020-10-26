@@ -79,3 +79,45 @@ def matrix_relation(con, dict_cases, list_sub_cases, case_of_interest, value_of_
         m[r][str(c) + '_' + f'{relname}_cases.rowid'] = None
         m[r][str(c) + '__sql_get_contributions'] = None
   return m, columns
+
+
+def best_cases_relation(con, cases_of_interest, value_of_interest, relname, stats, nvalues):
+  """ Return the rowid of nvalues best cases (defined by cases_of_interest) determined by the minimum of value_of_interest.
+
+  Function parameters:
+
+  con                --- connection to the sqlite3 database
+  cases_of_interest  --- list of parameters used as base to return the first best cases for the values of these parameters
+  value_of_interest  --- parameter which values will be used as comparison
+  relname            --- prefix of the tables used to retrieve data
+  stats              --- list of statistics to retrieve from the database
+  nvalues            --- number of values to return per cases
+  """
+
+  cur = con.cursor()
+
+  query = 'SELECT DISTINCT '
+  for i in cases_of_interest:
+    query += i + ','
+  query = query.rstrip(',')
+  query += f' FROM {relname}_cases'
+  cur.execute(query)
+  interests = cur.fetchall()
+
+  results = dict()
+  for interest in interests:
+    query = f'SELECT {relname}_cases.rowid'
+    for i in stats:
+      query += f',{relname}_{value_of_interest}_stats.' + i
+    query += f' FROM {relname}_{value_of_interest}_stats INNER JOIN {relname}_cases ON {relname}_{value_of_interest}_stats.rowid={relname}_cases.rowid WHERE'
+    for i in range(len(cases_of_interest)):
+      query += f' {relname}_cases.' + cases_of_interest[i] + "='" + str(interest[i]) + "' AND"
+    if query.endswith(' AND'):
+      query = query[:-4]
+    cur.execute(query)
+    res = cur.fetchall()
+    res = sorted(res, key = lambda x : float(x[1]))
+    res = [x[0] for x in res]
+    results[tuple(interest)] = res[:nvalues]
+  return results
+
