@@ -45,6 +45,7 @@ def matrix_relation(con, dict_cases, list_sub_cases, case_of_interest, value_of_
   for r in rows:
     m[r] = dict()
     for c in columns:
+      m[r][c] = dict()
       query = f'SELECT '
       for i in stats:
         query += f'{relname}_{value_of_interest}_stats.' + i + ','
@@ -65,19 +66,19 @@ def matrix_relation(con, dict_cases, list_sub_cases, case_of_interest, value_of_
       if res != None and len(res) > 0:
         min_pos = np.argmin([float(x[0]) for x in res])
         for i in range(len(stats)):
-          m[r][str(c) + '_' + stats[i]] = res[min_pos][i]
+          m[r][c][stats[i]] = res[min_pos][i]
         for i in range(len(list_sub_cases)):
-          m[r][str(c) + '_' + list_sub_cases[i]] = res[min_pos][len(stats) + i]
+          m[r][c][list_sub_cases[i]] = res[min_pos][len(stats) + i]
         id_case = res[min_pos][len(stats) + len(list_sub_cases)]
-        m[r][str(c) + '_' + f'{relname}_cases.rowid'] = id_case
-        m[r][str(c) + '__sql_get_contributions'] = f'SELECT * FROM {relname}_cases_values INNER JOIN auto_all_values ON auto_all_values.id={relname}_cases_values.id_values WHERE {relname}_cases_values.id_cases={id_case}'
+        m[r][c][f'__{relname}_cases.rowid'] = id_case
+        m[r][c]['__sql_get_contributions'] = f'SELECT * FROM {relname}_cases_values INNER JOIN auto_all_values ON auto_all_values.id={relname}_cases_values.id_values WHERE {relname}_cases_values.id_cases={id_case}'
       else:
         for i in range(len(stats)):
-          m[r][str(c) + '_' + stats[i]] = None
+          m[r][c][stats[i]] = None
         for i in range(len(list_sub_cases)):
-          m[r][str(c) + '_' + list_sub_cases[i]] = None
-        m[r][str(c) + '_' + f'{relname}_cases.rowid'] = None
-        m[r][str(c) + '__sql_get_contributions'] = None
+          m[r][c][list_sub_cases[i]] = None
+        m[r][c][f'__{relname}_cases.rowid'] = None
+        m[r][c]['__sql_get_contributions'] = None
   return m, columns
 
 
