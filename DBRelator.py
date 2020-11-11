@@ -82,8 +82,8 @@ def matrix_relation(con, dict_cases, list_sub_cases, case_of_interest, value_of_
   return m, columns
 
 
-def best_cases_relation(con, cases_of_interest, value_of_interest, relname, stats, nvalues):
-  """ Return the rowid of nvalues best cases (defined by cases_of_interest) determined by the minimum of value_of_interest.
+def ordered_cases_relation(con, cases_of_interest, value_of_interest, relname, stats):
+  """ Return the rowid of the cases (defined by cases_of_interest) ordered (ascending) by the minimum of value_of_interest.
 
   Function parameters:
 
@@ -92,7 +92,6 @@ def best_cases_relation(con, cases_of_interest, value_of_interest, relname, stat
   value_of_interest  --- parameter which values will be used as comparison
   relname            --- prefix of the tables used to retrieve data
   stats              --- list of statistics to retrieve from the database
-  nvalues            --- number of values to return per cases
   """
 
   cur = con.cursor()
@@ -119,6 +118,6 @@ def best_cases_relation(con, cases_of_interest, value_of_interest, relname, stat
     res = cur.fetchall()
     res = sorted(res, key = lambda x : float(x[1]))
     res = [x[0] for x in res]
-    results[tuple(interest)] = res[:nvalues]
+    results[tuple(interest)] = res
   return results
 
