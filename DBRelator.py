@@ -52,7 +52,7 @@ def matrix_relation(con, dict_cases, list_sub_cases, case_of_interest, value_of_
       query = query.rstrip(',')
       for i in list_sub_cases:
         query += f',{relname}_cases.' + i
-      query += f',{relname}_cases.rowid FROM {relname}_{value_of_interest}_stats INNER JOIN {relname}_cases ON {relname}_{value_of_interest}_stats.rowid={relname}_cases.rowid WHERE '
+      query += f',{relname}_cases.rowid,{relname}_{value_of_interest}_stats.N FROM {relname}_{value_of_interest}_stats INNER JOIN {relname}_cases ON {relname}_{value_of_interest}_stats.rowid={relname}_cases.rowid WHERE '
       query += f"{case_of_interest}='{c}'"
       for i in range(len(list_cases)):
         query += f' AND {relname}_cases.' + list_cases[i] + "='" + str(r[i]) + "'"
@@ -70,7 +70,9 @@ def matrix_relation(con, dict_cases, list_sub_cases, case_of_interest, value_of_
         for i in range(len(list_sub_cases)):
           m[r][c][list_sub_cases[i]] = res[min_pos][len(stats) + i]
         id_case = res[min_pos][len(stats) + len(list_sub_cases)]
+        N_case = res[min_pos][len(stats) + len(list_sub_cases) + 1]
         m[r][c][f'__{relname}_cases.rowid'] = id_case
+        m[r][c][f'__{relname}_cases.N'] = N_case
         m[r][c]['__sql_get_contributions'] = f'SELECT * FROM {relname}_cases_values INNER JOIN auto_all_values ON auto_all_values.id={relname}_cases_values.id_values WHERE {relname}_cases_values.id_cases={id_case}'
       else:
         for i in range(len(stats)):
@@ -79,6 +81,7 @@ def matrix_relation(con, dict_cases, list_sub_cases, case_of_interest, value_of_
           m[r][c][list_sub_cases[i]] = None
         m[r][c][f'__{relname}_cases.rowid'] = None
         m[r][c]['__sql_get_contributions'] = None
+        m[r][c][f'__{relname}_cases.N'] = 0
   return m, columns
 
 
