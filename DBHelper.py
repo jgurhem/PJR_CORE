@@ -130,25 +130,13 @@ def create_case_table(con, relname, case_components):
   query = f'CREATE TABLE {relname}_cases_values (id_cases INTEGER, id_values INTEGER)'
   cur.execute(query)
 
-  query = f'SELECT rowid,* FROM {relname}_cases'
+  query = f'INSERT INTO {relname}_cases_values SELECT {relname}_cases.rowid,auto_all_values.id FROM {relname}_cases INNER JOIN auto_all_values ON ('
+  for i in case_components:
+    query += 'auto_all_values.' + i + ' is ' + f"{relname}_cases." + i + ' AND '
+  if query.endswith(' AND '):
+    query = query[:-5]
+  query += f') INNER JOIN {relname}_filter ON auto_all_values.id={relname}_filter.id;'
   cur.execute(query)
-  res = cur.fetchall()
-  for i in res:
-    query = f'SELECT {relname}_filter.id FROM {relname}_filter INNER JOIN auto_all_values ON auto_all_values.id={relname}_filter.id '
-    if(len(i) > 1):
-      query += 'WHERE'
-      for j in range(1, len(i)):
-        if i[j] == None:
-          query += ' auto_all_values.' + case_components[j - 1] + " is null AND"
-        else:
-          query += ' auto_all_values.' + case_components[j - 1] + "='" + str(i[j]) + "' AND"
-      if query.endswith(' AND'):
-        query = query[:-4]
-      cur.execute(query)
-      res2 = cur.fetchall()
-      for r in res2:
-        query = f"INSERT INTO {relname}_cases_values VALUES('{i[0]}','{r[0]}')"
-        cur.execute(query)
   con.commit()
 
 def compute_stats(con, relname, column):
