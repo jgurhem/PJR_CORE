@@ -1,5 +1,6 @@
 import numpy as np
 from . import DBHelper as dh
+import json
 
 def matrix_relation(con, dict_cases, list_sub_cases, case_of_interest, value_of_interest, relname, stats, ratios = list()):
   """ Gather data from the database in order to use them in a plot.
@@ -42,7 +43,8 @@ def matrix_relation(con, dict_cases, list_sub_cases, case_of_interest, value_of_
   rows = cur.fetchall()
 
   m = dict()
-  for r in rows:
+  for tuple_r in rows:
+    r = json.dumps(dict(zip(list_cases, tuple_r)))
     m[r] = dict()
     for c in columns:
       m[r][c] = dict()
@@ -55,7 +57,7 @@ def matrix_relation(con, dict_cases, list_sub_cases, case_of_interest, value_of_
       query += f',{relname}_cases.rowid,{relname}_{value_of_interest}_stats.N FROM {relname}_{value_of_interest}_stats INNER JOIN {relname}_cases ON {relname}_{value_of_interest}_stats.rowid={relname}_cases.rowid WHERE '
       query += f"{case_of_interest}='{c}'"
       for i in range(len(list_cases)):
-        query += f' AND {relname}_cases.' + list_cases[i] + "='" + str(r[i]) + "'"
+        query += f' AND {relname}_cases.' + list_cases[i] + "='" + str(tuple_r[i]) + "'"
       for i in ratios:
         split = i.split(',')
         if len(split) == 3:
