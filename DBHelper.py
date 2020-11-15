@@ -145,14 +145,11 @@ def compute_stats(con, relname, column):
   query = f'CREATE TABLE {relname}_{column}_stats (id_cases INTEGER, n INTEGER, min FLAOT, max FLOAT, mean FLOAT, median FLOAT, sum FLOAT, std FLOAT, var FLOAT)'
   cur.execute(query)
 
-  query = f'SELECT rowid FROM {relname}_cases'
+  query = f'SELECT {relname}_cases_values.id_cases, GROUP_CONCAT(auto_all_values.{column}) FROM {relname}_cases_values INNER JOIN auto_all_values ON auto_all_values.id={relname}_cases_values.id_values GROUP BY {relname}_cases_values.id_cases'
   cur.execute(query)
   res = cur.fetchall()
   for i in res:
-    query = f'SELECT auto_all_values.{column} FROM {relname}_cases_values INNER JOIN auto_all_values ON auto_all_values.id={relname}_cases_values.id_values WHERE {relname}_cases_values.id_cases={i[0]}'
-    cur.execute(query)
-    res2 = cur.fetchall()
-    res2 = [float(x[0]) for x in res2]
+    res2 = [float(x) for x in i[1].split(',')]
     query = f"INSERT INTO {relname}_{column}_stats VALUES({i[0]}, {len(res2)}, {np.min(res2)}, {np.max(res2)}, {np.mean(res2)}, {np.median(res2)}, {np.sum(res2)}, {np.std(res2)}, {np.var(res2)})"
     cur.execute(query)
   con.commit()
