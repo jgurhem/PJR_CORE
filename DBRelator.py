@@ -21,6 +21,20 @@ def matrix_relation(con, dict_cases, list_sub_cases, case_of_interest, value_of_
   ratios             --- list of ratios the cases have to respect wheree param1*ratio=param2
                          param1 and param2 have to be included in dict_cases or list_sub_cases
                          ex : ['param1(str),param2(str),ratio(double)', '...', ..]
+
+  Returns:
+  A dict where
+    -- the keys are a str containing a json dict in which the keys are dict_cases.keys() and the values are the case associted
+    -- the values are dictionnaries in which the keys are the values of the case_of_interest
+                                             and the values are the value_of_interest for each key
+
+  Metadata for each value of the dict of value_of_interest:
+
+  __{relname}_cases.rowid     --- rowid of the case that has this value
+  __{relname}_cases.Nval      --- Number of rows of the database that contribute to this value
+  __{relname}_cases.Ncase     --- Number of cases from which the best case is selected
+  __sql_get_contributions     --- SQL query to retrieve all the rows of the database that contribute to the associated value
+
   """
 
   cur = con.cursor()
