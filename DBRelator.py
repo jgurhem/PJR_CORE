@@ -2,7 +2,7 @@ import numpy as np
 from . import DBHelper as dh
 import json
 
-def matrix_relation(con, dict_cases, list_sub_cases, case_of_interest, value_of_interest, relname, stats, ratios = list()):
+def matrix_relation(con, filter_dict, list_cases, list_sub_cases, case_of_interest, value_of_interest, relname, stats, ratios = list()):
   """ Gather data from the database in order to use them in a plot.
   The list of sub cases (list_sub_cases) is used to select the best case formed with the main case and sub case parameters
   using the minimum value of the first statitic put in the stats variable.
@@ -10,9 +10,10 @@ def matrix_relation(con, dict_cases, list_sub_cases, case_of_interest, value_of_
   Function parameters:
 
   con                --- connection to the sqlite3 database
-  dict_cases         --- dictionnary where the keys are the parameters to consider as main cases
+  filter_dict        --- dictionnary where the keys are the parameters to filter
                                            the values are a list of conditions on the parameters
                          ex : {param1:[value1,value2],param2:[value3,value4]}
+  list_cases         --- list of parameters to consider as cases, cannot be empty
   list_sub_cases     --- list of parameters to consider as sub cases, can be empty
   case_of_interest   --- parameter to compare to the main cases
   value_of_interest  --- parameter which values will be used as comparison
@@ -44,13 +45,12 @@ def matrix_relation(con, dict_cases, list_sub_cases, case_of_interest, value_of_
   res = cur.fetchall()
   columns = [x[0] for x in res]
 
-  list_cases = list(dict_cases.keys())
   query = 'SELECT DISTINCT '
   for i in list_cases:
     query += i + ','
   query = query.rstrip(',')
   query += f' FROM {relname}_cases WHERE'
-  query += dh.generate_conditions_where(dict_cases)
+  query += dh.generate_conditions_where(filter_dict)
   if query.endswith(' WHERE'):
     query = query[:-6]
   cur.execute(query)
@@ -72,6 +72,10 @@ def matrix_relation(con, dict_cases, list_sub_cases, case_of_interest, value_of_
       query += f"{case_of_interest}='{c}'"
       for i in range(len(list_cases)):
         query += f' AND {relname}_cases.' + list_cases[i] + "='" + str(tuple_r[i]) + "'"
+      query += ' AND '
+      query += dh.generate_conditions_where(filter_dict, f'{relname}_cases')
+      if query.endswith(' AND '):
+        query = query[:-5]
       for i in ratios:
         split = i.split(',')
         if len(split) == 3:

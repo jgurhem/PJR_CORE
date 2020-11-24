@@ -54,14 +54,17 @@ def convert_filter_list_to_dic(filter_list):
         dic[k] = set(split[1].split(','))
   return dic
 
-def generate_conditions_where(filter_dict):
+def generate_conditions_where(filter_dict, table = ''):
   filter_query = ''
+  prefix = ''
+  if table != '':
+    prefix = table + '.'
   for k in filter_dict:
     l = list(filter_dict[k])
     if len(l) > 0:
       filter_query += ' ('
       while(len(l) > 0):
-        filter_query += k + "='" + str(l.pop()) + "' OR "
+        filter_query += prefix + k + "='" + str(l.pop()) + "' OR "
       if filter_query.endswith(' OR '):
         filter_query = filter_query[:-4]
       filter_query += ') AND'
