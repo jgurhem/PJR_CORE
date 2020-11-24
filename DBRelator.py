@@ -40,7 +40,10 @@ def matrix_relation(con, filter_dict, list_cases, list_sub_cases, case_of_intere
 
   cur = con.cursor()
 
-  query = f'SELECT DISTINCT {case_of_interest} FROM {relname}_cases'
+  query = f'SELECT DISTINCT {case_of_interest} FROM {relname}_cases WHERE'
+  query += dh.generate_conditions_where(filter_dict)
+  if query.endswith(' WHERE'):
+    query = query[:-6]
   cur.execute(query)
   res = cur.fetchall()
   columns = [x[0] for x in res]
