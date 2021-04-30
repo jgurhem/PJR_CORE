@@ -74,7 +74,10 @@ def matrix_relation(con, filter_dict, list_cases, list_sub_cases, case_of_intere
       query += f',{relname}_cases.rowid,{relname}_{value_of_interest}_stats.N FROM {relname}_{value_of_interest}_stats INNER JOIN {relname}_cases ON {relname}_{value_of_interest}_stats.rowid={relname}_cases.rowid WHERE '
       query += f"{case_of_interest}='{c}'"
       for i in range(len(list_cases)):
-        query += f' AND {relname}_cases.' + list_cases[i] + "='" + str(tuple_r[i]) + "'"
+        if tuple_r[i] == None:
+          query += f' AND {relname}_cases.' + list_cases[i] + " is null"
+        else:
+          query += f' AND {relname}_cases.' + list_cases[i] + "='" + str(tuple_r[i]) + "'"
       query += ' AND '
       query += dh.generate_conditions_where(filter_dict, f'{relname}_cases')
       if query.endswith(' AND '):
