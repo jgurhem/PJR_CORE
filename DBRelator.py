@@ -89,6 +89,7 @@ def matrix_relation(con, filter_dict, list_cases, list_sub_cases, case_of_intere
       cur.execute(query)
       res = cur.fetchall()
 
+      m[r][c]['__sql_case_query'] = query
       if res != None and len(res) > 0:
         min_pos = np.argmin([float(x[0]) for x in res])
         for i in range(len(stats)):
