@@ -121,6 +121,14 @@ def read_json_file_raw(dbpath, json_input_file):
 
 def create_case_table(con, relname, case_components):
   cur = con.cursor()
+  cur.execute('PRAGMA table_info(auto_all_values)')
+  res = cur.fetchall()
+  colnames = [x[1] for x in res]
+  for i in case_components:
+    if i not in colnames:
+      query = f'ALTER TABLE auto_all_values ADD COLUMN {i} TEXT NULL'
+      cur.execute(query)
+
   cur.execute(f'DROP TABLE IF EXISTS {relname}_cases')
   query = f'CREATE TABLE {relname}_cases AS SELECT DISTINCT '
   for i in case_components:
